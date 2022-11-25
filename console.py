@@ -115,32 +115,23 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        """check class exist"""
-        if not args:
+        parsed_args = args.split(" ")
+        c_name = parsed_args[0]
+        if not c_name:
             print("** class name missing **")
             return
-        args = args.split(' ') 
-        className = args[0]
-
-        if className not in HBNBCommand.classes:
+        elif c_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-
-        attributes = {}
-        for attr in args[1:]:
-            new_dict = attr.split('=', 1)
-            attributes[new_dict[0]] = new_dict[1]
-
-        new_instance = HBNBCommand.classes[className]()
-
-        for key, value in attributes.items():
-            """place double quotes"""
-            value = value.strip("\"'").replace("_", " ")
-            value = self.num_or_float(value)
-            setattr(new_instance, key, value)
-
+        new_instance = HBNBCommand.classes[c_name]()
         print(new_instance.id)
-        new_instance.save()
+        storage.save()
+        for arg in parsed_args[1:]:
+            args = c_name + ' ' + new_instance.id
+            arg = arg.split('=')
+            for val in arg:
+                args += ' ' + val
+            self.do_update(args)
 
     def help_create(self):
         """ Help information for the create method """
@@ -335,20 +326,6 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
-    def num_or_float(self, arg: str):
-        """
-        Method to convert str to int or float
-        """
-        try:
-            return int(arg)
-        except Exception:
-            pass
-
-        try:
-            return float(arg)
-        except Exception:
-            return arg
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
